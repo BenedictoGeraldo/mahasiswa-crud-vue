@@ -1,23 +1,28 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { authApi } from '@/api/auth'
 
-const router = useRouter();
-const form = ref({ username: "", password: "" });
-const isLoading = ref(false);
-const errorMsg = ref("");
+const router = useRouter()
+const form = ref({ username: '', password: '' })
+const isLoading = ref(false)
+const errorMsg = ref('')
 
-function handleSubmit() {
-  errorMsg.value = "";
+async function handleSubmit() {
+  errorMsg.value = ''
   if (!form.value.username || !form.value.password) {
-    errorMsg.value = "Semua field wajib diisi.";
-    return;
+    errorMsg.value = 'Semua field wajib diisi.'
+    return
   }
-  isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    router.push("/login");
-  }, 800);
+  isLoading.value = true
+  try {
+    await authApi.register(form.value)
+    router.push('/login')
+  } catch (err: any) {
+    errorMsg.value = err.response?.data?.message || 'Pendaftaran gagal, coba lagi.'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 

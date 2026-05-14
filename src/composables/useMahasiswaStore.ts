@@ -1,30 +1,59 @@
 import { ref } from 'vue'
 import type { Mahasiswa } from '@/types'
+import { mahasiswaApi } from '@/api/mahasiswa'
 
-const mahasiswaList = ref<Mahasiswa[]>([
-  { id: 1, nim: '2021001', nama: 'Andi Pratama',  jurusan: 'Teknik Informatika',    angkatan: 2021 },
-  { id: 2, nim: '2021002', nama: 'Budi Santoso',  jurusan: 'Sistem Informasi',      angkatan: 2021 },
-  { id: 3, nim: '2022001', nama: 'Citra Dewi',    jurusan: 'Teknik Informatika',    angkatan: 2022 },
-  { id: 4, nim: '2022002', nama: 'Dian Rahmat',   jurusan: 'Manajemen Informatika', angkatan: 2022 },
-  { id: 5, nim: '2023001', nama: 'Eka Putri',     jurusan: 'Sistem Informasi',      angkatan: 2023 },
-])
-
-let nextId = 6
+const mahasiswaList = ref<Mahasiswa[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
 export function useMahasiswaStore() {
-  function addMahasiswa(data: Omit<Mahasiswa, 'id'>) {
-    mahasiswaList.value.push({ ...data, id: nextId++ })
-  }
-
-  function updateMahasiswa(id: number, data: Omit<Mahasiswa, 'id'>) {
-    const idx = mahasiswaList.value.findIndex((m) => m.id === id)
-    if (idx !== -1) {
-      mahasiswaList.value[idx] = { ...data, id }
+  async function fetchMahasiswa() {
+    isLoading.value = true
+    error.value = null
+    try {
+      const res = await mahasiswaApi.getAll()
+      mahasiswaList.value = res.data
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal memuat data mahasiswa.'
+    } finally {
+      isLoading.value = false
     }
   }
 
-  function deleteMahasiswa(id: number) {
-    mahasiswaList.value = mahasiswaList.value.filter((m) => m.id !== id)
+  async function addMahasiswa(data: Omit<Mahasiswa, 'id'>) {
+    error.value = null
+    try {
+      const res = await mahasiswaApi.create(data)
+      mahasiswaList.value.push(res.data)
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal menambah mahasiswa.'
+      throw err
+    }
+  }
+
+  async function updateMahasiswa(id: number, data: Omit<Mahasiswa, 'id'>) {
+    error.value = null
+    try {
+      const res = await mahasiswaApi.update(id, data)
+      const idx = mahasiswaList.value.findIndex((m) => m.id === id)
+      if (idx !== -1) {
+        mahasiswaList.value[idx] = res.data
+      }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal mengupdate mahasiswa.'
+      throw err
+    }
+  }
+
+  async function deleteMahasiswa(id: number) {
+    error.value = null
+    try {
+      await mahasiswaApi.delete(id)
+      mahasiswaList.value = mahasiswaList.value.filter((m) => m.id !== id)
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Gagal menghapus mahasiswa.'
+      throw err
+    }
   }
 
   function getMahasiswaById(id: number): Mahasiswa | undefined {
@@ -33,6 +62,9 @@ export function useMahasiswaStore() {
 
   return {
     mahasiswaList,
+    isLoading,
+    error,
+    fetchMahasiswa,
     addMahasiswa,
     updateMahasiswa,
     deleteMahasiswa,

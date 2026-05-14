@@ -1,23 +1,30 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { authApi } from '@/api/auth'
 
-const router = useRouter();
-const form = ref({ username: "", password: "" });
-const isLoading = ref(false);
-const errorMsg = ref("");
+const router = useRouter()
+const form = ref({ username: '', password: '' })
+const isLoading = ref(false)
+const errorMsg = ref('')
 
-function handleSubmit() {
-  errorMsg.value = "";
+async function handleSubmit() {
+  errorMsg.value = ''
   if (!form.value.username || !form.value.password) {
-    errorMsg.value = "Username dan password wajib diisi.";
-    return;
+    errorMsg.value = 'Username dan password wajib diisi.'
+    return
   }
-  isLoading.value = true;
-  setTimeout(() => {
-    isLoading.value = false;
-    router.push("/mahasiswa");
-  }, 800);
+  isLoading.value = true
+  try {
+    const res = await authApi.login(form.value)
+    localStorage.setItem('token', res.data.token)
+    localStorage.setItem('username', form.value.username)
+    router.push('/mahasiswa')
+  } catch (err: any) {
+    errorMsg.value = err.response?.data?.message || 'Login gagal, periksa kembali kredensial Anda.'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
