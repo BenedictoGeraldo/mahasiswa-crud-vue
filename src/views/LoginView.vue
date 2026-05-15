@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api/auth'
+import { API_ENABLED } from '@/config'
 
 const router = useRouter()
 const form = ref({ username: '', password: '' })
@@ -15,6 +16,17 @@ async function handleSubmit() {
     return
   }
   isLoading.value = true
+
+  if (!API_ENABLED) {
+    setTimeout(() => {
+      localStorage.setItem('token', 'mock-token')
+      localStorage.setItem('username', form.value.username)
+      isLoading.value = false
+      router.push('/mahasiswa')
+    }, 600)
+    return
+  }
+
   try {
     const res = await authApi.login(form.value)
     localStorage.setItem('token', res.data.token)
