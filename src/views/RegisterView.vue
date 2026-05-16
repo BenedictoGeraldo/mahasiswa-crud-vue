@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authApi } from '@/api/auth'
+import { API_ENABLED } from '@/config'
 
 const router = useRouter()
 const form = ref({ username: '', password: '' })
@@ -15,6 +16,15 @@ async function handleSubmit() {
     return
   }
   isLoading.value = true
+
+  if (!API_ENABLED) {
+    setTimeout(() => {
+      isLoading.value = false
+      router.push('/login')
+    }, 600)
+    return
+  }
+
   try {
     await authApi.register(form.value)
     router.push('/login')
