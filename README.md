@@ -4,7 +4,23 @@ QuickO adalah aplikasi **Single Page Application (SPA)** berbasis **Vue 3 + Type
 
 Antarmuka dirancang responsif dengan palet warna _olive-green_, menggunakan font **Poppins**, serta mendukung autentikasi pengguna berbasis token JWT. Aplikasi ini cocok sebagai proyek pembelajaran integrasi Vue 3 dengan REST API maupun sebagai fondasi sistem informasi akademik sederhana.
 
+
 ---
+
+---
+
+## URL LIVE PROJECT
+https://quicko-vue.netlify.app/
+
+
+---
+
+
+## Repositori Backend
+https://github.com/BenedictoGeraldo/mahasiswa-crud-spring.git
+
+
+--
 
 ## Fitur Utama
 
